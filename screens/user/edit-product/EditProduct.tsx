@@ -4,7 +4,6 @@ import { RouteProp } from '@react-navigation/native';
 import { AdminParamList } from '../../../types/navigation.types';
 import { useDispatch, useSelector } from 'react-redux';
 import { ICombinedStates } from '../../../state/store';
-import { IEditFormState } from '../../../types/admin.types';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { HeaderButtons, Item } from 'react-navigation-header-buttons';
 import CustomHeaderButton from '../../../components/ui/HeaderButton';
@@ -13,6 +12,8 @@ import styles from './EditProduct.styles';
 
 import Product from '../../../models/product';
 import { createProduct, updateProduct } from '../../../state/products.state';
+import CustomInput from '../../../components/ui/CustomInput';
+import { formTitle, IEditFormState } from '../../../types/admin.types';
 type EditProductRouteProp = RouteProp<AdminParamList, 'EditProduct'>
 type EditProductNavigationProp = StackNavigationProp<AdminParamList, 'EditProduct'>
 interface IEditProductProps {
@@ -23,30 +24,38 @@ interface IEditProductProps {
 const EditProduct = ({ route, navigation }: IEditProductProps) => {
   const dispatch = useDispatch()
   const productID = route.params.productID;
-  const createMode = !productID
-  const existingProduct = createMode ? null : useSelector<ICombinedStates, Product>(state => state.products.availableProducts.find(product => product.id === productID)!);
-  const [formState, setFormState] = useState<IEditFormState>(existingProduct ?
-    {
-      title: existingProduct.title,
-      imageUrl: existingProduct.imageUrl,
-      price: existingProduct.price.toFixed(2),
-      description: existingProduct.description,
-    }
-    :
-    {
-      title: "",
-      imageUrl: "",
-      price: "",
-      description: "",
-    }
-  )
+  const existingProduct = !productID ? null : useSelector<ICombinedStates, Product>(state => state.products.availableProducts.find(product => product.id === productID)!);
+  const [formState, setFormState] = useState<IEditFormState>({
+    inputValues: {
+      title: existingProduct ? existingProduct.title : "",
+      imageUrl: existingProduct ? existingProduct.imageUrl : "",
+      price: existingProduct ? existingProduct.price.toFixed(2) : "",
+      description: existingProduct ? existingProduct.description : "",
+    },
+    validationValues: {
+      title: existingProduct ? true : false,
+      imageUrl: existingProduct ? true : false,
+      price: existingProduct ? true : false,
+      description: existingProduct ? true : false,
+    },
+    formIsValid: existingProduct ? true : false
+  })
+
+  const handleChange = (inputType: string, text: string) => {
+    setFormState({
+      ...formState,
+      inputValues: {
+        ...formState.inputValues,
+        [inputType]: text
+      }
+    })
+  }
 
   const submitHandler = useCallback(() => {
     if (existingProduct) {
-      dispatch(updateProduct(formState, existingProduct.id))
-
+      dispatch(updateProduct(formState.inputValues, existingProduct.id))
     } else {
-      dispatch(createProduct(formState))
+      dispatch(createProduct(formState.inputValues))
     }
     navigation.goBack()
   }, [dispatch, formState])
@@ -67,22 +76,38 @@ const EditProduct = ({ route, navigation }: IEditProductProps) => {
   return (
     <ScrollView>
       <View style={styles.form}>
-        <View style={styles.formControl}>
-          <Text style={styles.label}>Title</Text>
-          <TextInput style={styles.input} value={formState.title} onChangeText={(text) => setFormState({ ...formState, title: text })} />
-        </View>
-        <View>
-          <Text style={styles.label}>Image URL</Text>
-          <TextInput style={styles.input} value={formState.imageUrl} onChangeText={(text) => setFormState({ ...formState, imageUrl: text })} />
-        </View>
-        <View>
-          <Text style={styles.label}>Price</Text>
-          <TextInput style={styles.input} value={formState.price} onChangeText={(text) => setFormState({ ...formState, price: text })} />
-        </View>
-        <View>
-          <Text style={styles.label}>Description</Text>
-          <TextInput style={styles.input} value={formState.description} onChangeText={(text) => setFormState({ ...formState, description: text })} />
-        </View>
+        <CustomInput
+          formState={formState}
+          inputType='title'
+          label="Title"
+          errorText="Please enter a valid title"
+          changeHandler={handleChange}
+          otherProps={null}
+        />
+        <CustomInput
+          formState={formState}
+          inputType='imageUrl'
+          label="Image URL"
+          errorText="Please enter a valid Image URL"
+          changeHandler={handleChange}
+          otherProps={null}
+        />
+        <CustomInput
+          formState={formState}
+          inputType='price'
+          label="Price"
+          errorText="Please enter a valid price"
+          changeHandler={handleChange}
+          otherProps={null}
+        />
+        <CustomInput
+          formState={formState}
+          inputType='description'
+          label="Description"
+          errorText="Please enter a valid description"
+          changeHandler={handleChange}
+          otherProps={null}
+        />
       </View>
     </ScrollView>
   )

@@ -1,8 +1,7 @@
 import { AnyAction } from 'redux';
 import products from '../data/products';
 import Product from '../models/product';
-import UserProducts from '../screens/user/user-products/UserProducts';
-import { IEditFormState } from '../types/admin.types';
+import { IEditInputState } from '../types/admin.types';
 
 export interface IProductsState {
   availableProducts: Product[]
@@ -23,8 +22,8 @@ export enum ProductActions {
 
 // ACTIONS
 export const DeleteProduct = (id: number | string): AnyAction => ({ type: ProductActions.DELETE_PRODUCT, data: id });
-export const createProduct = (productData: IEditFormState): AnyAction => ({ type: ProductActions.CREATE_PRODUCT, data: productData });
-export const updateProduct = (productData: IEditFormState, productId: string): AnyAction => ({ type: ProductActions.UPDATE_PRODUCT, data: productData, productId });
+export const createProduct = (productData: IEditInputState): AnyAction => ({ type: ProductActions.CREATE_PRODUCT, data: productData });
+export const updateProduct = (productData: IEditInputState, productId: string): AnyAction => ({ type: ProductActions.UPDATE_PRODUCT, data: productData, productId });
 
 // REDUCER
 const productsReducer = (state = initialState, action: AnyAction): IProductsState => {
