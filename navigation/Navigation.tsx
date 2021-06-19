@@ -132,13 +132,6 @@ const AdminNavigator = () => (
       options={({ navigation, route }: { navigation: DrawerNavigationProp<AdminParamList, 'EditProduct'>, route: RouteProp<AdminParamList, 'EditProduct'> }) => {
         return {
           headerTitle: route.params.productTitle ? route.params.productTitle : "Add Product",
-          headerLeft: () => (
-            <HeaderButtons HeaderButtonComponent={CustomHeaderButton}>
-              <Item title="Drawer" iconName='ios-menu' onPress={() => {
-                navigation.toggleDrawer();
-              }} />
-            </HeaderButtons>
-          )
         }
       }}
     />

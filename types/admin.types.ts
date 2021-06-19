@@ -17,5 +17,3 @@ export interface IEditValidationState {
   price: boolean;
   description: boolean
 }
-
-export type formTitle = "title" | "imageUrl" | "price" | "description"
