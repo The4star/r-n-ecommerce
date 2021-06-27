@@ -5,6 +5,7 @@ export interface IEditFormState {
 }
 
 export interface IEditInputState {
+  id?: string;
   title: string;
   imageUrl: string;
   price: string;

@@ -1,5 +1,5 @@
-import React from 'react'
-import { Button, FlatList, ListRenderItemInfo } from 'react-native';
+import React, { useCallback, useEffect, useState } from 'react'
+import { Text, Button, FlatList, ListRenderItemInfo, View, ActivityIndicator, Alert } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
 import ProductItem from '../../../components/shop/product-item/ProductItem';
 import Product from '../../../models/product';
@@ -8,6 +8,9 @@ import { StackNavigationProp } from '@react-navigation/stack';
 import { ProductParamList } from '../../../types/navigation.types';
 import { addItemToCart } from '../../../state/cart.state';
 import colors from '../../../constants/colors';
+import { fetchProducts } from '../../../state/products.state';
+import styles from './ProductsOverview.styles';
+
 
 type ProductOverviewNavigationProp = StackNavigationProp<ProductParamList, 'Products'>
 
@@ -18,12 +21,58 @@ interface IProductOverviewProps {
 const ProductsOverview = ({ navigation }: IProductOverviewProps) => {
   const dispatch = useDispatch()
   const products = useSelector<ICombinedStates, Product[]>(state => state.products.availableProducts);
+  const [isLoading, setisLoading] = useState<boolean>(false);
+  const [error, setError] = useState<string | null>(null)
 
   const viewDetails = (product: Product) => {
     navigation.navigate({
       name: 'ProductDetails',
       params: { productID: product.id, productTitle: product.title }
     })
+  }
+
+  const loadProducts = useCallback(async () => {
+    if (error) {
+      setError(null)
+    }
+    setisLoading(true)
+    try {
+      await dispatch(fetchProducts())
+    } catch (err) {
+      setError(err.message);
+    }
+    setisLoading(false)
+  }, [dispatch, setisLoading, setError])
+
+  useEffect(() => {
+    loadProducts()
+  }, [dispatch, loadProducts])
+
+
+  if (isLoading) {
+    return (
+      <View style={styles.screen}>
+        <ActivityIndicator size="large" color={colors.primary} />
+      </View>
+    )
+  }
+
+  if (!isLoading && !products.length) {
+    return (
+      <View style={styles.screen}>
+        <Text>No products found, start adding some!</Text>
+      </View>
+    )
+  }
+
+  if (error) {
+    return (
+      <View style={styles.screen}>
+        <Text>An Error Occured</Text>
+        <Text>{error}</Text>
+        <Button title="Try Again" onPress={loadProducts} />
+      </View>
+    )
   }
 
   return (

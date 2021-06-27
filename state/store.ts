@@ -1,7 +1,8 @@
-import { createStore, combineReducers } from 'redux';
+import { createStore, combineReducers, applyMiddleware } from 'redux';
 import cartReducer, { ICartState } from './cart.state';
 import ordersReducer, { IOrderState } from './orders.state';
 import productsReducer, { IProductsState } from './products.state';
+import ReduxThunk from 'redux-thunk';
 
 export interface ICombinedStates {
   products: IProductsState;
@@ -14,6 +15,6 @@ const rootReducer = combineReducers({
   orders: ordersReducer
 })
 
-const stateStore = createStore(rootReducer);
+const stateStore = createStore(rootReducer, applyMiddleware(ReduxThunk));
 
 export default stateStore;
