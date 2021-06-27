@@ -24,7 +24,15 @@ export enum ProductActions {
 }
 
 // ACTIONS
-export const DeleteProduct = (id: number | string): AnyAction => ({ type: ProductActions.DELETE_PRODUCT, data: id });
+export const DeleteProduct = (id: number | string) => {
+  return async (dispatch: Dispatch<AnyAction>) => {
+    await db.collection("products").doc(id as string).delete()
+    dispatch({
+      type: ProductActions.DELETE_PRODUCT,
+      data: id
+    })
+  }
+};
 export const createProduct = (productData: IEditInputState) => {
   return async (dispatch: Dispatch<AnyAction>) => {
     try {
@@ -40,7 +48,15 @@ export const createProduct = (productData: IEditInputState) => {
     }
   }
 };
-export const updateProduct = (productData: IEditInputState, productId: string): AnyAction => ({ type: ProductActions.UPDATE_PRODUCT, data: productData, productId });
+export const updateProduct = (productData: IEditInputState, productId: string) => {
+  return async (dispatch: Dispatch<AnyAction>) => {
+    await db.collection("products").doc(productId).update(productData)
+    dispatch({
+      type: ProductActions.UPDATE_PRODUCT,
+      data: productData, productId
+    })
+  }
+};
 export const fetchProducts = () => {
   return async (dispatch: Dispatch<AnyAction>) => {
     try {

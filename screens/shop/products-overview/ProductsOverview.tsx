@@ -45,6 +45,13 @@ const ProductsOverview = ({ navigation }: IProductOverviewProps) => {
   }, [dispatch, setisLoading, setError])
 
   useEffect(() => {
+    navigation.addListener('focus', loadProducts)
+    return () => {
+      navigation.removeListener('focus', loadProducts)
+    }
+  }, [loadProducts])
+
+  useEffect(() => {
     loadProducts()
   }, [dispatch, loadProducts])
 
