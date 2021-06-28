@@ -28,8 +28,6 @@ const Orders = () => {
     fetchOrdersHandler();
   }, [dispatch, fetchOrdersHandler])
 
-
-
   if (isLoading) {
     return (
       <View style={styles.screen}>

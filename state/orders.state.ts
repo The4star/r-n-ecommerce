@@ -88,7 +88,7 @@ const ordersReducer = (state = initialState, action: AnyAction): IOrderState => 
         data.orderId,
         data.orderItems,
         data.orderAmount,
-        data.orderDate.toISOString()
+        data.orderDate
       );
 
       return {
