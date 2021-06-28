@@ -11,21 +11,23 @@ import { ICombinedStates } from '../../../state/store';
 const Orders = () => {
   const dispatch = useDispatch()
   const orders = useSelector<ICombinedStates, Order[]>(state => state.orders.orders)
-  const [isLoading, setisLoading] = useState<boolean>(false);
-  const [error, setError] = useState<string | null>(null)
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [isRefreshing, setIsRefreshing] = useState<boolean>(false);
+  const [error, setError] = useState<string | null>(null);
 
   const fetchOrdersHandler = useCallback(async () => {
-    setisLoading(true)
+    setIsRefreshing(true)
     try {
       await dispatch(fetchOrders())
     } catch (err) {
       setError(err.message)
     }
-    setisLoading(false)
+    setIsRefreshing(false)
   }, [dispatch])
 
   useEffect(() => {
-    fetchOrdersHandler();
+    setIsLoading(true)
+    fetchOrdersHandler().then(() => setIsLoading(false));
   }, [dispatch, fetchOrdersHandler])
 
   if (isLoading) {
@@ -55,6 +57,8 @@ const Orders = () => {
   }
 
   return <FlatList
+    onRefresh={fetchOrdersHandler}
+    refreshing={isRefreshing}
     data={orders}
     renderItem={(itemData: ListRenderItemInfo<Order>) => <OrderItem order={itemData.item} />}
   />

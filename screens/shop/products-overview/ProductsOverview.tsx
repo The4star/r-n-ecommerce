@@ -21,8 +21,9 @@ interface IProductOverviewProps {
 const ProductsOverview = ({ navigation }: IProductOverviewProps) => {
   const dispatch = useDispatch()
   const products = useSelector<ICombinedStates, Product[]>(state => state.products.availableProducts);
-  const [isLoading, setisLoading] = useState<boolean>(false);
-  const [error, setError] = useState<string | null>(null)
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [isRefreshing, setIsRefreshing] = useState<boolean>(false);
+  const [error, setError] = useState<string | null>(null);
 
   const viewDetails = (product: Product) => {
     navigation.navigate({
@@ -35,14 +36,14 @@ const ProductsOverview = ({ navigation }: IProductOverviewProps) => {
     if (error) {
       setError(null)
     }
-    setisLoading(true)
+    setIsRefreshing(true)
     try {
       await dispatch(fetchProducts())
     } catch (err) {
       setError(err.message);
     }
-    setisLoading(false)
-  }, [dispatch, setisLoading, setError])
+    setIsRefreshing(false)
+  }, [dispatch, setIsRefreshing, setError])
 
   useEffect(() => {
     navigation.addListener('focus', loadProducts)
@@ -52,7 +53,8 @@ const ProductsOverview = ({ navigation }: IProductOverviewProps) => {
   }, [loadProducts])
 
   useEffect(() => {
-    loadProducts()
+    setIsLoading(true)
+    loadProducts().then(() => setIsLoading(false));
   }, [dispatch, loadProducts])
 
   if (isLoading) {
@@ -82,13 +84,18 @@ const ProductsOverview = ({ navigation }: IProductOverviewProps) => {
   }
 
   return (
-    <FlatList data={products} renderItem={(itemData: ListRenderItemInfo<Product>) => <ProductItem
-      item={itemData.item}
-      onSelect={() => viewDetails(itemData.item)}
-    >
-      <Button color={colors.primary} title="View Details" onPress={() => viewDetails(itemData.item)} />
-      <Button color={colors.primary} title="Add To Cart" onPress={() => dispatch(addItemToCart(itemData.item))} />
-    </ProductItem>}
+    <FlatList
+      onRefresh={loadProducts}
+      refreshing={isRefreshing}
+      data={products}
+      renderItem={(itemData: ListRenderItemInfo<Product>) =>
+        <ProductItem
+          item={itemData.item}
+          onSelect={() => viewDetails(itemData.item)}
+        >
+          <Button color={colors.primary} title="View Details" onPress={() => viewDetails(itemData.item)} />
+          <Button color={colors.primary} title="Add To Cart" onPress={() => dispatch(addItemToCart(itemData.item))} />
+        </ProductItem>}
     />
   )
 }
