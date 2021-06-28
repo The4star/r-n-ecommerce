@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useState } from 'react';
-import { View, Text, TextInput, ScrollView, Alert } from 'react-native';
+import { View, Text, ScrollView, Alert, ActivityIndicator } from 'react-native';
 import { RouteProp } from '@react-navigation/native';
 import { AdminParamList } from '../../../types/navigation.types';
 import { useDispatch, useSelector } from 'react-redux';
@@ -15,6 +15,7 @@ import Product from '../../../models/product';
 import { createProduct, updateProduct } from '../../../state/products.state';
 import CustomInput from '../../../components/ui/CustomInput';
 import { IEditFormState, IEditInputState, IEditValidationState } from '../../../types/admin.types';
+import colors from '../../../constants/colors';
 type EditProductRouteProp = RouteProp<AdminParamList, 'EditProduct'>
 type EditProductNavigationProp = StackNavigationProp<AdminParamList, 'EditProduct'>
 interface IEditProductProps {
@@ -42,6 +43,8 @@ const EditProduct = ({ route, navigation }: IEditProductProps) => {
     },
     formIsValid: existingProduct ? true : false
   })
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [error, setError] = useState<string | null>(null);
 
   const checkLength = (inputType: keyof IEditValidationState, text: string, updatedFormState: IEditFormState) => {
     if (!text.length) {
@@ -86,7 +89,8 @@ const EditProduct = ({ route, navigation }: IEditProductProps) => {
     setFormState({ ...updatedFormState })
   }
 
-  const submitHandler = useCallback(() => {
+  const submitHandler = useCallback(async () => {
+
     if (!formState.formIsValid) {
       setFormFailedSubmission(true)
       Alert.alert('Submission invalid', 'Please check the errors in the form.', [
@@ -94,13 +98,28 @@ const EditProduct = ({ route, navigation }: IEditProductProps) => {
       ]);
       return;
     }
-    if (existingProduct) {
-      dispatch(updateProduct(formState.inputValues, existingProduct.id))
-    } else {
-      dispatch(createProduct(formState.inputValues))
+
+    setError(null);
+    setIsLoading(true)
+    try {
+      if (existingProduct) {
+        await dispatch(updateProduct(formState.inputValues, existingProduct.id))
+      } else {
+        await dispatch(createProduct(formState.inputValues))
+      }
+      navigation.goBack()
+    } catch (err) {
+      setError(err.message)
     }
-    navigation.goBack()
+
+    setIsLoading(false)
   }, [dispatch, formState])
+
+  useEffect(() => {
+    if (error) {
+      Alert.alert('An error occured', error, [{ text: "OK" }])
+    }
+  }, [error])
 
   useEffect(() => {
     navigation.setOptions({
@@ -114,6 +133,14 @@ const EditProduct = ({ route, navigation }: IEditProductProps) => {
     })
 
   }, [submitHandler])
+
+  if (isLoading) {
+    return (
+      <View style={styles.centered}>
+        <ActivityIndicator size="large" color={colors.primary} />
+      </View>
+    )
+  }
 
   return (
     <ScrollView>

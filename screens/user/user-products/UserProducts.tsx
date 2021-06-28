@@ -1,6 +1,6 @@
 import { StackNavigationProp } from '@react-navigation/stack';
-import React from 'react';
-import { Button, FlatList, ListRenderItemInfo, Alert } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import { Button, FlatList, ListRenderItemInfo, Alert, View, ActivityIndicator } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
 import ProductItem from '../../../components/shop/product-item/ProductItem';
 import colors from '../../../constants/colors';
@@ -18,6 +18,8 @@ interface IUserProductsProps {
 const UserProducts = ({ navigation }: IUserProductsProps) => {
   const dispatch = useDispatch()
   const userProducts = useSelector<ICombinedStates, Product[]>(state => state.products.userProducts)
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [error, setError] = useState<string | null>(null);
 
   const editProduct = (product: Product) => {
     navigation.navigate({
@@ -26,12 +28,37 @@ const UserProducts = ({ navigation }: IUserProductsProps) => {
     })
   }
 
+  const deleteProduct = async (productId: string) => {
+    setIsLoading(true);
+    setError(null)
+    try {
+      await dispatch(DeleteProduct(productId))
+    } catch (err) {
+      setError(err.message)
+    }
+    setIsLoading(false)
+  }
+
   const deleteHandler = (productId: string) => {
     Alert.alert('Are you sure?', " Do you really want to delete this product?",
       [
         { text: "No", style: 'default' },
-        { text: "yes", onPress: () => dispatch(DeleteProduct(productId)), style: "destructive" }
+        { text: "yes", onPress: () => DeleteProduct(productId), style: "destructive" }
       ]
+    )
+  }
+
+  useEffect(() => {
+    if (error) {
+      Alert.alert("An error has occured", error, [{ text: "Okay" }])
+    }
+  }, [error])
+
+  if (isLoading) {
+    return (
+      <View>
+        <ActivityIndicator size="large" color={colors.primary} />
+      </View>
     )
   }
 

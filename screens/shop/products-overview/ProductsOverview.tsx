@@ -55,7 +55,6 @@ const ProductsOverview = ({ navigation }: IProductOverviewProps) => {
     loadProducts()
   }, [dispatch, loadProducts])
 
-
   if (isLoading) {
     return (
       <View style={styles.screen}>

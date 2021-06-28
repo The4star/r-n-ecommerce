@@ -1,7 +1,7 @@
 import { Action, AnyAction, Dispatch } from 'redux';
 import 'react-native-get-random-values';
 import { v4 as uuidv4 } from 'uuid';
-import db from '../firebase.config';
+import firestoreClient from '../firebase.config';
 import Product from '../models/product';
 import { IEditInputState } from '../types/admin.types';
 
@@ -26,7 +26,7 @@ export enum ProductActions {
 // ACTIONS
 export const DeleteProduct = (id: number | string) => {
   return async (dispatch: Dispatch<AnyAction>) => {
-    await db.collection("products").doc(id as string).delete()
+    await firestoreClient.collection("products").doc(id as string).delete()
     dispatch({
       type: ProductActions.DELETE_PRODUCT,
       data: id
@@ -37,7 +37,7 @@ export const createProduct = (productData: IEditInputState) => {
   return async (dispatch: Dispatch<AnyAction>) => {
     try {
       const id = uuidv4();
-      await db.collection("products").doc(id).set(productData);
+      await firestoreClient.collection("products").doc(id).set(productData);
       productData.id = id
       dispatch({
         type: ProductActions.CREATE_PRODUCT,
@@ -50,7 +50,7 @@ export const createProduct = (productData: IEditInputState) => {
 };
 export const updateProduct = (productData: IEditInputState, productId: string) => {
   return async (dispatch: Dispatch<AnyAction>) => {
-    await db.collection("products").doc(productId).update(productData)
+    await firestoreClient.collection("products").doc(productId).update(productData)
     dispatch({
       type: ProductActions.UPDATE_PRODUCT,
       data: productData, productId
@@ -61,8 +61,8 @@ export const fetchProducts = () => {
   return async (dispatch: Dispatch<AnyAction>) => {
     try {
       const loadedProducts: Product[] = []
-      const productsInDb = await db.collection("products").get();
-      productsInDb.forEach(product => {
+      const productsInfirestoreClient = await firestoreClient.collection("products").get();
+      productsInfirestoreClient.forEach(product => {
         const productData = product.data();
         loadedProducts.push(new Product(
           product.id,
