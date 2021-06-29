@@ -18,3 +18,5 @@ export interface IEditValidationState {
   price: boolean;
   description: boolean
 }
+
+

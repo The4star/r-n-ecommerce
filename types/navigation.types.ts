@@ -13,6 +13,10 @@ export type AdminParamList = {
   EditProduct: { productID?: string, productTitle?: string }
 }
 
+export type AuthParamList = {
+  Authentication: undefined
+}
+
 export type ShopDrawerParamList = {
   ProductNav: ProductParamList;
   OrderNav: OrdersParamList;

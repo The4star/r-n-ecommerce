@@ -1,14 +1,19 @@
 import React from 'react';
 import { Platform } from 'react-native';
-import { createStackNavigator, HeaderTitle, StackNavigationProp } from '@react-navigation/stack';
-import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import { createStackNavigator } from '@react-navigation/stack';
 import { createDrawerNavigator, DrawerNavigationProp } from '@react-navigation/drawer';
 import { HeaderButtons, Item } from 'react-navigation-header-buttons';
 import CustomHeaderButton from '../components/ui/HeaderButton';
 import ProductsOverview from '../screens/shop/products-overview/ProductsOverview';
 import ProductDetails from '../screens/shop/product-details/ProductDetails';
 import colors from '../constants/colors';
-import { AdminParamList, OrdersParamList, ProductParamList, ShopDrawerParamList } from '../types/navigation.types';
+import {
+  AdminParamList,
+  AuthParamList,
+  OrdersParamList,
+  ProductParamList,
+  ShopDrawerParamList
+} from '../types/navigation.types';
 import { RouteProp } from '@react-navigation/native';
 import Cart from '../screens/shop/cart/Cart';
 import Orders from '../screens/shop/orders/Orders';
@@ -16,11 +21,13 @@ import { Ionicons } from '@expo/vector-icons'
 import { Colors } from 'react-native/Libraries/NewAppScreen';
 import UserProducts from '../screens/user/user-products/UserProducts';
 import EditProduct from '../screens/user/edit-product/EditProduct';
+import Authentication from '../screens/user/authentication/Authentication';
 
-const Tab = createBottomTabNavigator();
+
 const ProductStack = createStackNavigator<ProductParamList>();
 const ordersStack = createStackNavigator<OrdersParamList>();
 const adminStack = createStackNavigator<AdminParamList>();
+const AuthStack = createStackNavigator<AuthParamList>();
 const ShopDrawer = createDrawerNavigator<ShopDrawerParamList>();
 
 const defaultScreenOptions = {
@@ -138,7 +145,14 @@ const AdminNavigator = () => (
   </adminStack.Navigator>
 )
 
-
+const AuthNavigator = () => (
+  <AuthStack.Navigator screenOptions={defaultScreenOptions}>
+    <AuthStack.Screen
+      name="Authentication"
+      component={Authentication}
+    />
+  </AuthStack.Navigator>
+)
 
 const ShopNavigator = () => (
   <ShopDrawer.Navigator drawerContentOptions={{ activeTintColor: Colors.primary }} >
@@ -169,4 +183,7 @@ const ShopNavigator = () => (
   </ShopDrawer.Navigator>
 )
 
-export default ShopNavigator;
+export {
+  AuthNavigator,
+  ShopNavigator
+} 
