@@ -11,10 +11,20 @@ interface ICustomInputProps {
   changeHandler: (inputType: string, text: string) => void
   formState: IEditFormState | IAuthFormState;
   formFailedSubmission: boolean;
+  extraStyling?: any
   [x: string]: any | TextInputProps;
 }
 
-const CustomInput = ({ inputType, label, errorText, changeHandler, formState, formFailedSubmission, ...otherProps }: ICustomInputProps) => {
+const CustomInput = ({
+  inputType,
+  label,
+  errorText,
+  changeHandler,
+  formState,
+  formFailedSubmission,
+  extraStyling,
+  ...otherProps
+}: ICustomInputProps) => {
   const [inputTouched, setInputTouched] = useState<boolean>(false)
 
   useEffect(() => {
@@ -26,7 +36,7 @@ const CustomInput = ({ inputType, label, errorText, changeHandler, formState, fo
     <View style={styles.formControl}>
       <Text style={styles.label}>{label}</Text>
       <TextInput
-        style={styles.input}
+        style={extraStyling ? { ...styles.input, ...extraStyling } : styles.input}
         value={formState.inputValues[inputType as keyof IEditInputState & keyof IAuthFormState]}
         onChangeText={(text) => changeHandler(inputType, text)}
         onBlur={() => setInputTouched(true)}

@@ -1,9 +1,12 @@
 import React, { useState } from 'react';
-import { ScrollView, View, KeyboardAvoidingView, Text } from 'react-native';
+import { ScrollView, View, KeyboardAvoidingView, Text, Button } from 'react-native';
+import { LinearGradient } from 'expo-linear-gradient';
 import Card from '../../../components/ui/Card';
 import CustomInput from '../../../components/ui/CustomInput';
+import colors from '../../../constants/colors';
 import { IAuthFormState, IAuthInputState, IAuthValidationState } from '../../../types/auth.types';
 import styles from './Authentication.styles';
+
 const Authentication = () => {
   const [formFailedSubmission, setFormFailedSubmission] = useState<boolean>(false)
   const [formState, setFormState] = useState<IAuthFormState>({
@@ -52,31 +55,37 @@ const Authentication = () => {
       behavior="padding"
       keyboardVerticalOffset={50}
     >
-      <Card propStyles={styles.authContainer}>
-        <ScrollView>
-          <CustomInput
-            formFailedSubmission={formFailedSubmission}
-            formState={formState}
-            inputType="email"
-            label="Email"
-            errorText="Please enter a valid email"
-            changeHandler={handleChange}
-            autoCapitalize="none"
-            keyboardType="email-address"
-          />
-          <CustomInput
-            formFailedSubmission={formFailedSubmission}
-            formState={formState}
-            inputType="password"
-            label="Password"
-            errorText="Please enter a valid Password"
-            changeHandler={handleChange}
-            secureTextEntry
-            autoCapitalize="none"
-          />
-        </ScrollView>
-      </Card>
-    </KeyboardAvoidingView>
+      <LinearGradient colors={['#ffedff', '#ffe3ff']} style={styles.gradient}>
+        <Card propStyles={styles.authContainer}>
+          <ScrollView>
+            <CustomInput
+              formFailedSubmission={formFailedSubmission}
+              formState={formState}
+              inputType="email"
+              label="Email"
+              errorText="Please enter a valid email"
+              changeHandler={handleChange}
+              autoCapitalize="none"
+              keyboardType="email-address"
+            />
+            <CustomInput
+              formFailedSubmission={formFailedSubmission}
+              formState={formState}
+              inputType="password"
+              label="Password"
+              errorText="Please enter a valid Password"
+              changeHandler={handleChange}
+              secureTextEntry
+              autoCapitalize="none"
+            />
+            <View style={styles.buttonSection} >
+              <Button title="Login" color={colors.primary} onPress={() => { }} />
+              <Button title="Switch To Sign Up" color={colors.accent} onPress={() => { }} />
+            </View>
+          </ScrollView>
+        </Card>
+      </LinearGradient>
+    </KeyboardAvoidingView >
   )
 }
 

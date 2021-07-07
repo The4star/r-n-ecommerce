@@ -150,6 +150,7 @@ const AuthNavigator = () => (
     <AuthStack.Screen
       name="Authentication"
       component={Authentication}
+      options={{ headerTitle: "Log in/Sign up" }}
     />
   </AuthStack.Navigator>
 )
