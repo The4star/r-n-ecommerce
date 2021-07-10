@@ -1,10 +1,11 @@
 import React, { useState } from 'react';
-import { Provider } from 'react-redux';
+import { Provider, useSelector } from 'react-redux';
 import { NavigationContainer } from '@react-navigation/native';
 import * as Font from 'expo-font';
 import AppLoading from 'expo-app-loading';
-import stateStore from './state/store';
+import stateStore, { ICombinedStates } from './state/store';
 import { AuthNavigator, ShopNavigator } from './navigation/Navigation';
+import UI from './screens/UI';
 
 const fetchFonts = () => {
   return Font.loadAsync({
@@ -15,7 +16,7 @@ const fetchFonts = () => {
 
 export default function App() {
   const [fontLoaded, setFontLoaded] = useState<boolean>(false)
-  const [signedIn, setSignedIn] = useState<boolean>(false)
+
   if (!fontLoaded) {
     return (
       <AppLoading
@@ -27,14 +28,7 @@ export default function App() {
   }
   return (
     <Provider store={stateStore}>
-      <NavigationContainer>
-        {
-          signedIn ?
-            <ShopNavigator />
-            :
-            <AuthNavigator />
-        }
-      </NavigationContainer>
+      <UI />
     </Provider>
   );
 }

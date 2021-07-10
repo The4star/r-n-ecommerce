@@ -1,7 +1,7 @@
 import { Action, AnyAction, Dispatch } from 'redux';
 import 'react-native-get-random-values';
 import { v4 as uuidv4 } from 'uuid';
-import firestoreClient from '../firebase.config';
+import { authClient, firestoreClient } from '../firebase.config';
 import Product from '../models/product';
 import { IEditInputState } from '../types/admin.types';
 
@@ -37,11 +37,15 @@ export const createProduct = (productData: IEditInputState) => {
   return async (dispatch: Dispatch<AnyAction>) => {
     try {
       const id = uuidv4();
-      await firestoreClient.collection("products").doc(id).set(productData);
+      const userId = authClient.currentUser?.uid as string
+      await firestoreClient.collection("products").doc(id).set({ ...productData, userId });
       productData.id = id
       dispatch({
         type: ProductActions.CREATE_PRODUCT,
-        data: productData
+        data: {
+          ...productData,
+          userId
+        }
       })
     } catch (error) {
       console.log(error);
@@ -61,12 +65,13 @@ export const fetchProducts = () => {
   return async (dispatch: Dispatch<AnyAction>) => {
     try {
       const loadedProducts: Product[] = []
+      const userId = authClient.currentUser?.uid as string
       const productsInfirestoreClient = await firestoreClient.collection("products").get();
       productsInfirestoreClient.forEach(product => {
         const productData = product.data();
         loadedProducts.push(new Product(
           product.id,
-          'u1',
+          productData.userId,
           productData.title,
           productData.imageUrl,
           productData.description,
@@ -76,7 +81,10 @@ export const fetchProducts = () => {
 
       dispatch({
         type: ProductActions.SET_PRODUCTS,
-        data: loadedProducts
+        data: {
+          loadedProducts,
+          userId
+        }
       })
     } catch (error) {
       throw error
@@ -91,8 +99,8 @@ const productsReducer = (state = initialState, action: AnyAction): IProductsStat
     case ProductActions.SET_PRODUCTS:
       return {
         ...state,
-        availableProducts: data,
-        userProducts: data.filter((product: Product) => product.ownerId === 'u1')
+        availableProducts: data.loadedProducts,
+        userProducts: data.loadedProducts.filter((product: Product) => product.ownerId === data.userId)
       }
     case ProductActions.DELETE_PRODUCT:
       return {
@@ -103,7 +111,7 @@ const productsReducer = (state = initialState, action: AnyAction): IProductsStat
     case ProductActions.CREATE_PRODUCT:
       const newProduct = new Product(
         data.id,
-        'u1',
+        data.userId,
         data.title,
         data.imageUrl,
         data.description,

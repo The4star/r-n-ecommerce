@@ -1,7 +1,7 @@
 import { AnyAction, Dispatch } from 'redux';
 import 'react-native-get-random-values';
 import { v4 as uuidv4 } from 'uuid';
-import firestoreClient from '../firebase.config';
+import { authClient, firestoreClient } from '../firebase.config';
 import CartItem from '../models/cart-item';
 import Order from '../models/order';
 
@@ -34,8 +34,8 @@ export const addOrder = (cartItems: CartItem[], totalAmount: number) => {
         sum: cartItem.sum,
       }
     })
-
-    await firestoreClient.collection('users').doc('u1').collection("orders").doc(orderId).set({
+    const userId = authClient.currentUser?.uid
+    await firestoreClient.collection('users').doc(userId).collection("orders").doc(orderId).set({
       orderId,
       cartItems: formattedCartItems,
       totalAmount,
@@ -53,7 +53,8 @@ export const fetchOrders = () => {
   return async (dispatch: Dispatch<AnyAction>) => {
     try {
       const loadedOrders: Order[] = []
-      const ordersInDb = await firestoreClient.collection("users").doc("u1").collection("orders").get();
+      const userId = authClient.currentUser?.uid
+      const ordersInDb = await firestoreClient.collection("users").doc(userId).collection("orders").get();
       ordersInDb.forEach(order => {
         const orderData = order.data();
         loadedOrders.push(new Order(

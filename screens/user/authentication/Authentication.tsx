@@ -1,14 +1,20 @@
 import React, { useState } from 'react';
-import { ScrollView, View, KeyboardAvoidingView, Text, Button } from 'react-native';
+import { ScrollView, View, KeyboardAvoidingView, Text, Button, ActivityIndicator, Alert } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import Card from '../../../components/ui/Card';
 import CustomInput from '../../../components/ui/CustomInput';
 import colors from '../../../constants/colors';
 import { IAuthFormState, IAuthInputState, IAuthValidationState } from '../../../types/auth.types';
 import styles from './Authentication.styles';
+import { useDispatch } from 'react-redux';
+import { login, signup } from '../../../state/auth.state';
 
 const Authentication = () => {
-  const [formFailedSubmission, setFormFailedSubmission] = useState<boolean>(false)
+  const dispatch = useDispatch()
+  const [isLoading, setIsLoading] = useState<boolean>(false)
+  const [formFailedSubmission, setFormFailedSubmission] = useState<boolean>(false);
+  const [isSignUp, setIsSignUp] = useState<boolean>(false);
+  const [formError, setFormError] = useState<string | null>(null);
   const [formState, setFormState] = useState<IAuthFormState>({
     inputValues: {
       email: "",
@@ -41,12 +47,37 @@ const Authentication = () => {
     }
 
     let formCompletelyValid = true;
+
     for (const typeOfInput in formState.validationValues) {
       formCompletelyValid = formCompletelyValid && updatedFormState.validationValues[typeOfInput as keyof IAuthValidationState]
     }
+
     updatedFormState.formIsValid = formCompletelyValid;
     updatedFormState.inputValues[inputType as keyof IAuthInputState] = text
     setFormState({ ...updatedFormState })
+  }
+
+  const handleSubmission = async () => {
+    try {
+
+      if (!formState.formIsValid) {
+        setFormFailedSubmission(true)
+        Alert.alert('Submission invalid', 'Please check the errors in the form.', [
+          { text: 'Okay' }
+        ]);
+        return;
+      }
+
+      setIsLoading(true);
+      if (isSignUp) {
+        await dispatch(signup(formState.inputValues.email, formState.inputValues.password));
+      } else {
+        await dispatch(login(formState.inputValues.email, formState.inputValues.password));
+      }
+    } catch (error) {
+      setIsLoading(false)
+      setFormError(error.message);
+    }
   }
 
   return (
@@ -79,9 +110,19 @@ const Authentication = () => {
               autoCapitalize="none"
             />
             <View style={styles.buttonSection} >
-              <Button title="Login" color={colors.primary} onPress={() => { }} />
-              <Button title="Switch To Sign Up" color={colors.accent} onPress={() => { }} />
+              {
+                isLoading ?
+                  <ActivityIndicator size="small" color={colors.primary} />
+                  :
+                  <Button title={isSignUp ? "Sign Up" : "Log in"} color={colors.primary} onPress={() => handleSubmission()} />
+              }
+              <Button title={`Switch To ${isSignUp ? "Log in" : "Sign Up"}`} color={colors.accent} onPress={() => setIsSignUp(!isSignUp)} />
             </View>
+            {
+              formError ?
+                <Text style={styles.errorText}>{formError}</Text>
+                : null
+            }
           </ScrollView>
         </Card>
       </LinearGradient>

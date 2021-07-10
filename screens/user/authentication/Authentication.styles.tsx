@@ -23,6 +23,11 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignSelf: 'center',
     marginTop: 20
+  },
+  errorText: {
+    color: "red",
+    marginVertical: 10,
+    textAlign: "center"
   }
 })
 
