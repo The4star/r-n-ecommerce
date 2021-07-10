@@ -1,10 +1,8 @@
 import React, { useState } from 'react';
-import { Provider, useSelector } from 'react-redux';
-import { NavigationContainer } from '@react-navigation/native';
+import { Provider } from 'react-redux';
 import * as Font from 'expo-font';
 import AppLoading from 'expo-app-loading';
-import stateStore, { ICombinedStates } from './state/store';
-import { AuthNavigator, ShopNavigator } from './navigation/Navigation';
+import stateStore from './state/store';
 import UI from './screens/UI';
 
 const fetchFonts = () => {

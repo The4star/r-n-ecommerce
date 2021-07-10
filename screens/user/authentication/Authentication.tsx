@@ -59,7 +59,6 @@ const Authentication = () => {
 
   const handleSubmission = async () => {
     try {
-
       if (!formState.formIsValid) {
         setFormFailedSubmission(true)
         Alert.alert('Submission invalid', 'Please check the errors in the form.', [

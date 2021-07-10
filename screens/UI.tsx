@@ -5,11 +5,12 @@ import { AuthNavigator, ShopNavigator } from '../navigation/Navigation'
 import { ICombinedStates } from '../state/store'
 
 const UI = () => {
-  const userID = useSelector<ICombinedStates, string | null>(state => state.auth.userID)
+  const userId = useSelector<ICombinedStates, string | null>(state => state.auth.userId)
+
   return (
     <NavigationContainer>
       {
-        userID ?
+        userId ?
           <ShopNavigator />
           :
           <AuthNavigator />

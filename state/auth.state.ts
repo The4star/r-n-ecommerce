@@ -2,29 +2,28 @@ import { Dispatch, AnyAction } from 'redux';
 import { authClient } from '../firebase.config';
 
 export interface IAuthState {
-  token: string | null;
-  userID: string | null;
+  userId: string | null;
 }
 
 const initialState: IAuthState = {
-  token: null,
-  userID: null
+  userId: null
 }
 
 enum AuthActions {
   SIGNUP = 'SIGNUP',
-  LOGIN = 'LOGIN'
+  LOGIN = 'LOGIN',
+  LOGOUT = 'LOGOUT'
 }
 
 export const signup = (email: string, password: string) => {
   return async (dispatch: Dispatch<AnyAction>) => {
     try {
       const signUpResponse = await authClient.createUserWithEmailAndPassword(email, password);
+      const userId = signUpResponse.user?.uid as string
       dispatch({
         type: AuthActions.SIGNUP,
         data: {
-          token: signUpResponse.user?.getIdToken(),
-          userID: signUpResponse.user?.uid
+          userId
         }
       })
     } catch (error) {
@@ -46,12 +45,11 @@ export const login = (email: string, password: string) => {
   return async (dispatch: Dispatch<AnyAction>) => {
     try {
       const signInResponse = await authClient.signInWithEmailAndPassword(email, password);
-      console.log(signInResponse.user?.uid);
+      const userId = signInResponse.user?.uid as string
       dispatch({
         type: AuthActions.LOGIN,
         data: {
-          token: signInResponse.user?.getIdToken(),
-          userID: signInResponse.user?.uid
+          userId
         }
       })
     } catch (error) {
@@ -71,18 +69,29 @@ export const login = (email: string, password: string) => {
   }
 }
 
+export const logout = () => {
+  return async (dispatch: Dispatch<AnyAction>) => {
+    await authClient.signOut()
+    dispatch({
+      type: AuthActions.LOGOUT
+    })
+  }
+}
+
 const authReducer = (state = initialState, action: AnyAction): IAuthState => {
   const { type, data } = action
   switch (type) {
     case AuthActions.SIGNUP:
       return {
-        token: data.token,
-        userID: data.userID
+        userId: data.userId
       }
     case AuthActions.LOGIN:
       return {
-        token: data.token,
-        userID: data.userID
+        userId: data.userId
+      }
+    case AuthActions.LOGOUT:
+      return {
+        userId: null
       }
     default:
       return state

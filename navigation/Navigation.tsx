@@ -1,7 +1,7 @@
 import React from 'react';
 import { Platform } from 'react-native';
 import { createStackNavigator } from '@react-navigation/stack';
-import { createDrawerNavigator, DrawerNavigationProp } from '@react-navigation/drawer';
+import { createDrawerNavigator, DrawerContentScrollView, DrawerItem, DrawerItemList, DrawerNavigationProp } from '@react-navigation/drawer';
 import { HeaderButtons, Item } from 'react-navigation-header-buttons';
 import CustomHeaderButton from '../components/ui/HeaderButton';
 import ProductsOverview from '../screens/shop/products-overview/ProductsOverview';
@@ -22,6 +22,8 @@ import { Colors } from 'react-native/Libraries/NewAppScreen';
 import UserProducts from '../screens/user/user-products/UserProducts';
 import EditProduct from '../screens/user/edit-product/EditProduct';
 import Authentication from '../screens/user/authentication/Authentication';
+import { useDispatch } from 'react-redux';
+import { logout } from '../state/auth.state';
 
 
 const ProductStack = createStackNavigator<ProductParamList>();
@@ -155,34 +157,52 @@ const AuthNavigator = () => (
   </AuthStack.Navigator>
 )
 
-const ShopNavigator = () => (
-  <ShopDrawer.Navigator drawerContentOptions={{ activeTintColor: Colors.primary }} >
-    <ShopDrawer.Screen
-      name="ProductNav"
-      component={ProductsNavigator}
-      options={{
-        drawerLabel: "Products",
-        drawerIcon: drawerConfig => <Ionicons name="ios-cart" size={23} color={drawerConfig.color} />
+const ShopNavigator = () => {
+  const dispatch = useDispatch()
+  return (
+    <ShopDrawer.Navigator
+      drawerContentOptions={{ activeTintColor: Colors.primary }}
+      drawerContent={(props) => {
+        return (
+          <DrawerContentScrollView {...props} >
+            <DrawerItemList {...props} />
+            <DrawerItem
+              icon={(drawerConfig) => <Ionicons name="log-out" size={23} color={drawerConfig.color} />}
+              label="Logout"
+              onPress={() => dispatch(logout())}
+            />
+          </DrawerContentScrollView>
+        )
       }}
-    />
-    <ShopDrawer.Screen
-      name="OrderNav"
-      component={OrdersNavigator}
-      options={{
-        drawerLabel: "Orders",
-        drawerIcon: drawerConfig => <Ionicons name="ios-list" size={23} color={drawerConfig.color} />
-      }}
-    />
-    <ShopDrawer.Screen
-      name="AdminNav"
-      component={AdminNavigator}
-      options={{
-        drawerLabel: "Admin",
-        drawerIcon: drawerConfig => <Ionicons name="pencil" size={23} color={drawerConfig.color} />
-      }}
-    />
-  </ShopDrawer.Navigator>
-)
+    >
+      <ShopDrawer.Screen
+        name="ProductNav"
+        component={ProductsNavigator}
+        options={{
+          drawerLabel: "Products",
+          drawerIcon: drawerConfig => <Ionicons name="ios-cart" size={23} color={drawerConfig.color} />
+        }}
+      />
+      <ShopDrawer.Screen
+        name="OrderNav"
+        component={OrdersNavigator}
+        options={{
+          drawerLabel: "Orders",
+          drawerIcon: drawerConfig => <Ionicons name="ios-list" size={23} color={drawerConfig.color} />
+        }}
+      />
+      <ShopDrawer.Screen
+        name="AdminNav"
+        component={AdminNavigator}
+        options={{
+          drawerLabel: "Admin",
+          drawerIcon: drawerConfig => <Ionicons name="pencil" size={23} color={drawerConfig.color} />
+        }}
+      />
+    </ShopDrawer.Navigator>
+  )
+
+}
 
 export {
   AuthNavigator,
